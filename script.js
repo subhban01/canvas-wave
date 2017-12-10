@@ -1,16 +1,14 @@
+//author: Subhadeep Banerjee
+https://github.com/subhban01
+
+
+
 var c = document.getElementById('c');
 c.width = 1000;
 c.height = 500;
 var ctx = c.getContext('2d'),
 cw = c.width,
 ch = c.height;
-
-
-
-// ctx.fillStyle = 'grey';
-// ctx.fillRect(0,0, c.width, c.height);
-
-
 //feedback gradient creation
 var grd = ctx.createLinearGradient(0, 0, 900, 0);
 grd.addColorStop(0, "#ef652d");
@@ -19,37 +17,39 @@ grd.addColorStop(0.5, "#dcd182");
 grd.addColorStop(0.75, "#bce695");
 grd.addColorStop(1, "#36f5b0");
 
+var textSpacing = 920/7;
+var sliderY = 310;
 
+function init(){
+ctx.globalCompositeOperation='source-over';
 //bottom footer
 ctx.fillStyle = '#000';
 ctx.fillRect(0,400, c.width, c.height);
-
-
+ctx.globalCompositeOperation='destination-over';
+ctx.fillStyle = grd;
+ctx.fillRect(0,380, c.width, c.height);
 	//adding feedback options
-	var textSpacing = 920/7;
 	var sideBuffer = 50;
 	ctx.font = "15px Arial";
-  	ctx.fillStyle = 'black';
+	ctx.fillStyle = 'black';
 	ctx.fillText("STRONGLY",sideBuffer,250);
 	ctx.fillText("DISAGREE",sideBuffer,272);
-	ctx.fillText("DISAGREE",textSpacing+sideBuffer,250);
+	ctx.fillText("DISAGREE",textSpacing+sideBuffer,272);
 	ctx.fillText("MILDLY",(textSpacing*2)+sideBuffer,250);
 	ctx.fillText("DISAGREE",(textSpacing*2)+sideBuffer,272);
-	ctx.fillText("NO OPINION",(textSpacing*3)+sideBuffer,250);
+	ctx.fillText("NO OPINION",(textSpacing*3)+sideBuffer,272);
 	ctx.fillText("MILDLY",(textSpacing*4)+sideBuffer,250);
 	ctx.fillText("AGREE",(textSpacing*4)+sideBuffer,272);
-	ctx.fillText("AGREE",(textSpacing*5)+sideBuffer,250);
+	ctx.fillText("AGREE",(textSpacing*5)+sideBuffer,272);
 	ctx.fillText("STRONGLY",(textSpacing*6)+sideBuffer,250);
 	ctx.fillText("AGREE",(textSpacing*6)+sideBuffer,272);
-
-
-
 	//slider bar
-	var sliderY = 310;
+	ctx.beginPath();
 	ctx.moveTo(sideBuffer+30, sliderY);
 	ctx.lineTo(920-50,sliderY);
 	ctx.lineWidth = 2;
 	ctx.stroke();
+	ctx.closePath();
 
 	for(i=0; i<7; i++){
 		ctx.beginPath();
@@ -57,37 +57,84 @@ ctx.fillRect(0,400, c.width, c.height);
 		ctx.closePath();
 		ctx.fill();
 	}
+}
 
-
-	//grab on
+init();
+//default bezier {x: 490, y: 300}
 	ctx.beginPath();
-	ctx.arc((textSpacing*3.5)+30, sliderY, 20, 0, 2*Math.PI);
+	ctx.moveTo(280, 720);
+	ctx.globalCompositeOperation='destination-over';
+	ctx.quadraticCurveTo(480,-165, 680, 720);
+	ctx.fillStyle = grd;
+	ctx.fill();
+	ctx.closePath();
+//default grabber
+	ctx.globalCompositeOperation='source-over';
+	ctx.beginPath();
+	ctx.arc((textSpacing*3.5)+20, sliderY, 20, 0, 2*Math.PI);
 	ctx.fillStyle = '#fff';
 	ctx.closePath();
 	ctx.fill();
 
-
 //onclick handler
+var x, y, startTime;
 c.addEventListener('click', function(evt){
 	var rect = c.getBoundingClientRect();
 	x = evt.clientX - rect.left, y = evt.clientY - rect.top;
-
-	// console.log(x,y);
-	ctx.moveTo(x-200, y+420);
-	ctx.quadraticCurveTo(x,y-500, x+200, y+420);
-	ctx.globalCompositeOperation='destination-over';
-	ctx.fillStyle = grd;
-  	ctx.fill();
-
+	console.log(x,y);
+	// ctx.beginPath();
+	// ctx.moveTo(x-200, y+420);
+	// ctx.quadraticCurveTo(x,y-500, x+200, y+420);
+	// ctx.globalCompositeOperation='destination-over';
+	// ctx.fillStyle = grd;
+	// ctx.fill();
+	// ctx.closePath();
+	startTime = (new Date()).getTime();
+	animate(x, startTime);
 })
+function drawBeziers(x1){
+	if(x1 > (textSpacing*6)+80){
+		x1 = (textSpacing*6)+80;
+	}
+	else if(x1 < 80){
+		x1 = 80;
+	}
+	if(y > 317){
+		y = 317;
+	}
+	else if(y < 280){
+		y = 280;
+	}
+	// console.log(x1,y);
+	ctx.beginPath();
+	ctx.moveTo(x1-200, y+420);
+	ctx.globalCompositeOperation='destination-over';
+	ctx.quadraticCurveTo(x1,y-500, x1+200, y+420);
+	ctx.fillStyle = grd;
+	ctx.fill();
+	ctx.closePath();
+}
+function drawGrabber(x){
+	oldX = x;
+	if(x > (textSpacing*6)+80){
+		x = (textSpacing*6)+80;
+	}
+	else if(x < 80){
+		x = 80;
+	}
 
-
-
-window.requestAnimFrame=function(){return window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame||function(a){window.setTimeout(a,1E3/60)}}();
+	//place grubber on selected points. [0-147] interval is 130
+	ctx.globalCompositeOperation='source-over';
+	ctx.beginPath();
+	ctx.arc(x, sliderY, 20, 0, 2*Math.PI);
+	ctx.fillStyle = '#fff';
+	ctx.closePath();
+	ctx.fill();
+}
 
 var clear = function(){
-  ctx.clearRect(0, 0, cw, ch);
-  x++; y++;
+	ctx.clearRect(0, 0, cw, ch);
+	init();
 };
 
 
@@ -97,6 +144,46 @@ var clear = function(){
 
 
 
+
+
+window.requestAnimFrame = (function(callback) {
+	return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+	function(callback) {
+		window.setTimeout(callback, 1000 / 60);
+	};
+})();
+
+var oldX = 475;
+function animate(x1, t) {
+	var time = (new Date()).getTime() - t;
+	// console.log(t, time);
+	// console.log('x1 old',x1);
+	var linearSpeed = 200;
+        // pixels / second
+        var newX = linearSpeed * time/1000;
+        var x2 = x1;
+        // for(i = 0; i<100; i++){
+        	// newX++;
+        	if(newX < c.width) {
+        		// console.log('oldX',oldX);
+        		// if(oldX > x2){
+        		x2 += newX;
+        	// }
+        	}
+        	clear();
+        	// console.log('x1',x1);
+        	drawBeziers(oldX);
+        	drawGrabber(x2);
+        // }
+
+        
+        // request new frame
+        if(time < 500){
+        	requestAnimFrame(function() {
+        		animate(x1, startTime);
+        	});
+        }
+    }
 
 
 
