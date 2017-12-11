@@ -1,5 +1,5 @@
 //author: Subhadeep Banerjee
-https://github.com/subhban01
+//https://github.com/subhban01
 
 
 
@@ -75,13 +75,23 @@ init();
 	ctx.fillStyle = '#fff';
 	ctx.closePath();
 	ctx.fill();
+//default triangle
+	ctx.beginPath();
+	var triangleX = (textSpacing*3.5)+10;
+	var triangleY = sliderY+5;
+	ctx.moveTo(triangleX,triangleY);
+    ctx.lineTo(triangleX+10,triangleY-15);
+    ctx.lineTo(triangleX+20,triangleY);
+	ctx.fillStyle = '#000';
+	ctx.closePath();
+	ctx.fill();
 
 //onclick handler
 var x, y, startTime;
 c.addEventListener('click', function(evt){
 	var rect = c.getBoundingClientRect();
 	x = evt.clientX - rect.left, y = evt.clientY - rect.top;
-	console.log(x,y);
+	// console.log(x,y);
 	// ctx.beginPath();
 	// ctx.moveTo(x-200, y+420);
 	// ctx.quadraticCurveTo(x,y-500, x+200, y+420);
@@ -90,7 +100,12 @@ c.addEventListener('click', function(evt){
 	// ctx.fill();
 	// ctx.closePath();
 	startTime = (new Date()).getTime();
-	animate(x, startTime);
+	if(x < oldX){
+		animate(oldX, startTime, true);
+	}
+	else{
+		animate(oldX, startTime);
+	}
 })
 function drawBeziers(x1){
 	if(x1 > (textSpacing*6)+80){
@@ -130,16 +145,22 @@ function drawGrabber(x){
 	ctx.fillStyle = '#fff';
 	ctx.closePath();
 	ctx.fill();
+	//triangle
+	ctx.beginPath();
+	var triangleX = x-10;
+	var triangleY = sliderY+5;
+	ctx.moveTo(triangleX,triangleY);
+    ctx.lineTo(triangleX+10,triangleY-15);
+    ctx.lineTo(triangleX+20,triangleY);
+	ctx.fillStyle = '#000';
+	ctx.closePath();
+	ctx.fill();
 }
 
 var clear = function(){
 	ctx.clearRect(0, 0, cw, ch);
 	init();
 };
-
-
-
-
 
 
 
@@ -154,33 +175,38 @@ window.requestAnimFrame = (function(callback) {
 })();
 
 var oldX = 475;
-function animate(x1, t) {
+var duration = 490;
+function animate(x1, t, reverse) {
 	var time = (new Date()).getTime() - t;
-	// console.log(t, time);
+	// temp = prevX & prevX;
+	// console.log('t', time);
 	// console.log('x1 old',x1);
-	var linearSpeed = 200;
+	var linearSpeed = 250;
         // pixels / second
         var newX = linearSpeed * time/1000;
         var x2 = x1;
         // for(i = 0; i<100; i++){
         	// newX++;
         	if(newX < c.width) {
-        		// console.log('oldX',oldX);
-        		// if(oldX > x2){
-        		x2 += newX;
-        	// }
+        		// console.log('oldX',oldX, x2, time);
+        		if(reverse){
+        			x2 -= newX;
+        		}
+        		else{
+        			x2 += newX;
+        		}
         	}
+        	// console.log(x2);
+        	if(time >= 500){
+				oldX = x2;
+			}
         	clear();
-        	// console.log('x1',x1);
-        	drawBeziers(oldX);
-        	drawGrabber(x2);
-        // }
-
-        
+        	drawBeziers(x2);
+        	drawGrabber(x2);  
         // request new frame
-        if(time < 500){
+        if(time < duration){
         	requestAnimFrame(function() {
-        		animate(x1, startTime);
+        		animate(x1, startTime, reverse);
         	});
         }
     }
