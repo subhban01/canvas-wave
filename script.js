@@ -135,31 +135,38 @@ var x, y, startTime;
 var matrix = {
 	95: {
 		text: 'STRONGLY DISAGREE',
-		color: '#ee6e35'
+		color: '#ee6e35',
+		y: 220
 	},
 	228: {
 		text: 'DISAGREE',
-		color: '#eba963'
+		color: '#eba963',
+		y: 260
 	},
 	361: {
 		text: 'MILDLY DISAGREE',
-		color: '#e7c67b'
+		color: '#e7c67b',
+		y: 290
 	},
 	494: {
 		text: 'NO OPINION',
-		color: '#d6d584'
+		color: '#d6d584',
+		y: 320
 	},
 	627: {
 		text: 'MILDLY AGREE',
-		color: '#c4e190'
+		color: '#c4e190',
+		y: 290
 	},
 	760: {
 		text: 'AGREE',
-		color: '#8cec9e'
+		color: '#8cec9e',
+		y: 260
 	},
 	893: {
 		text: 'STRONGLY AGREE',
-		color: '#36f6b0'
+		color: '#36f6b0',
+		y: 220
 	}
 }
 c.addEventListener('click', function(evt){
@@ -203,8 +210,11 @@ function drawBeziers(x1){
 	if(y > 317){
 		y = 317;
 	}
-	else if(y < 280){
-		y = 280;
+
+	for(p in matrix){
+		if( p <= Math.floor(x1)+70 && p >= Math.ceil(x1)-70){
+			y = matrix[p].y;
+		}
 	}
 	ctx.beginPath();
 	ctx.moveTo(x1-200, y+420);
@@ -268,7 +278,7 @@ for(i=0; i<7; i++){
 
 
 var oldX = 475;
-var duration = 490;
+var duration = 600;
 
 function animate(t, reverse) {
 	var dist = Math.abs(grabberPos - x);
