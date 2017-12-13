@@ -106,26 +106,41 @@ init();
 	ctx.closePath();
 	ctx.fill();
 
+
+var pitStops = [];
+for(i=0; i<7; i++){
+	pitStops.push(sliderStartX+dotPosition*i);
+	}
+
 //onclick handler
 var x, y, startTime;
 c.addEventListener('click', function(evt){
 	var rect = c.getBoundingClientRect();
 	x = evt.clientX - rect.left, y = evt.clientY - rect.top;
 	// console.log(x,y);
-	// ctx.beginPath();
-	// ctx.moveTo(x-200, y+420);
-	// ctx.quadraticCurveTo(x,y-500, x+200, y+420);
-	// ctx.globalCompositeOperation='destination-over';
-	// ctx.fillStyle = grd;
-	// ctx.fill();
-	// ctx.closePath();
+	var tempX;
+	for(i=0; i<7; i++){
+		if(i == 0 && x < pitStops[i]+(dotPosition/2) && x >= 0){
+			tempX = pitStops[i];
+		}
+		else if(i == 6 && x <= 1000 && x > pitStops[i]-(dotPosition/2)){
+			tempX = pitStops[i];
+		}
+		else if(x < pitStops[i]+(dotPosition/2) && x > pitStops[i]-(dotPosition/2)){
+			tempX = pitStops[i];
+		}
+	}
+	x = tempX;
+
+	window.setTimeout(function(){
 	startTime = (new Date()).getTime();
-	if(x < oldX){
-		animate(oldX, startTime, true);
+	if(x < grabberPos){
+		animate(startTime, true);
 	}
 	else{
-		animate(oldX, startTime);
+		animate(startTime, false);
 	}
+},500);
 })
 function drawBeziers(x1){
 	if(x1 >= sliderStartX+dotPosition*6){
@@ -140,7 +155,6 @@ function drawBeziers(x1){
 	else if(y < 280){
 		y = 280;
 	}
-	// console.log(x1,y);
 	ctx.beginPath();
 	ctx.moveTo(x1-200, y+420);
 	ctx.globalCompositeOperation='destination-over';
@@ -149,6 +163,7 @@ function drawBeziers(x1){
 	ctx.fill();
 	ctx.closePath();
 }
+var grabberPos = (sliderWidth/2) + sliderStartX;
 function drawGrabber(x){
 	if(x >= sliderStartX+dotPosition*6){
 		x = sliderStartX+dotPosition*6;
@@ -156,7 +171,6 @@ function drawGrabber(x){
 	else if(x <= 80){
 		x = 80;
 	}
-
 	//place grubber on selected points. [0-147] interval is 130
 	ctx.globalCompositeOperation='source-over';
 	ctx.beginPath();
@@ -174,6 +188,8 @@ function drawGrabber(x){
 	ctx.fillStyle = '#000';
 	ctx.closePath();
 	ctx.fill();
+
+	grabberPos = x;
 }
 
 var clear = function(){
@@ -193,31 +209,31 @@ window.requestAnimFrame = (function(callback) {
 	};
 })();
 
+var pitStops = [];
+for(i=0; i<7; i++){
+	pitStops.push(sliderStartX+dotPosition*i);
+	}
+
+
+
 var oldX = 475;
 var duration = 490;
-function animate(x1, t, reverse) {
+
+function animate(t, reverse) {
+	var dist = Math.abs(grabberPos - x);
 	var time = (new Date()).getTime() - t;
-	// temp = prevX & prevX;
-	// console.log('t', time);
-	// console.log('x1 old',x1);
-	var linearSpeed = 250;
-        // pixels / second
-        var newX = linearSpeed * time/1000;
-        var x2 = x1;
-        // for(i = 0; i<100; i++){
-        	// newX++;
-        	if(newX < c.width) {
-        		// console.log('oldX',oldX, x2, time);
+	var linearSpeed = 100;
+        var newX = dist*linearSpeed/ duration;
+        // console.log(newX);
+        var x2 = grabberPos;
         		if(reverse){
         			x2 -= newX;
         		}
         		else{
         			x2 += newX;
         		}
-        	}
-        	// console.log(x2);
-        	if(time >= 500){
-				oldX = x2;
+        	if(time >= duration){
+					oldX = x2;
 			}
         	clear();
         	drawBeziers(x2);
@@ -225,7 +241,7 @@ function animate(x1, t, reverse) {
         // request new frame
         if(time < duration){
         	requestAnimFrame(function() {
-        		animate(x1, startTime, reverse);
+        		animate(startTime, reverse);
         	});
         }
     }
